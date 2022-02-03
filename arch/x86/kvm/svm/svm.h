@@ -196,10 +196,17 @@ struct svm_nested_state {
 	bool force_msr_bitmap_recalc;
 };
 
+struct snp_vmsa_update {
+	gpa_t gpa;
+	bool  ap_create;	/* SEV-SNP AP Creation */
+};
+
 struct vcpu_sev_es_state {
-	/* SEV-ES support */
+	/* SEV-ES / SEV-SNP support */
 	struct sev_es_save_area *vmsa;
-	hpa_t vmsa_pa;
+	hpa_t vmsa_pa[SVM_SEV_VMPL_MAX];
+	gpa_t ghcb_gpa[SVM_SEV_VMPL_MAX];
+	u64 ghcb_registered_gpa[SVM_SEV_VMPL_MAX];
 	bool ghcb_in_use;
 	bool received_first_sipi;
 	unsigned int ap_reset_hold_type;
@@ -220,11 +227,10 @@ struct vcpu_sev_es_state {
 	u64 ghcb_sw_exit_info_1;
 	u64 ghcb_sw_exit_info_2;
 
-	u64 ghcb_registered_gpa;
-
 	struct mutex snp_vmsa_mutex;
-	gpa_t snp_vmsa_gpa;
-	bool snp_ap_create;
+	struct snp_vmsa_update snp_vmsa[SVM_SEV_VMPL_MAX];
+	unsigned int snp_current_vmpl;
+	unsigned int snp_target_vmpl;
 };
 
 struct vcpu_svm {
@@ -355,7 +361,7 @@ static inline bool sev_snp_guest(struct kvm *kvm)
 
 static inline bool ghcb_gpa_is_registered(struct vcpu_svm *svm, u64 val)
 {
-	return svm->sev_es.ghcb_registered_gpa == val;
+	return svm->sev_es.ghcb_registered_gpa[svm->sev_es.snp_current_vmpl] == val;
 }
 
 static inline void vmcb_mark_all_dirty(struct vmcb *vmcb)
