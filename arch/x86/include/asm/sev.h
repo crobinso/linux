@@ -180,6 +180,17 @@ struct snp_secrets_page_layout {
 	u8 rsvd4[3744];
 } __packed;
 
+/*
+ * The SVSM CAA related structures.
+ */
+struct svsm_caa {
+       u8 call_pending;
+       u8 mem_available;
+       u8 rsvd1[6];
+
+       u8 svsm_buffer[PAGE_SIZE - 8];
+};
+
 struct rmpupdate {
 	u64 gpa;
 	u8 assigned;
