@@ -1154,6 +1154,11 @@ enum kvm_apicv_inhibit {
 	 * AVIC is disabled because SEV doesn't support it.
 	 */
 	APICV_INHIBIT_REASON_SEV,
+
+	/*
+	 * AVIC is disabled because SNP doesn't support it.
+	 */
+	APICV_INHIBIT_REASON_SNP,
 };
 
 struct kvm_arch {
