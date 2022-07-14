@@ -73,7 +73,7 @@ enum {
 #define VMCB_ALWAYS_DIRTY_MASK	((1U << VMCB_INTR) | (1U << VMCB_CR2))
 
 /* Supported init feature flags */
-#define SEV_SNP_SUPPORTED_FLAGS		0x0
+#define SEV_SNP_SUPPORTED_FLAGS		KVM_SEV_SNP_SVSM
 
 struct kvm_sev_info {
 	bool active;		/* SEV enabled guest */
@@ -696,7 +696,9 @@ unsigned long avic_vcpu_get_apicv_inhibit_reasons(struct kvm_vcpu *vcpu);
 #define GHCB_VERSION_MAX	2ULL
 #define GHCB_VERSION_MIN	1ULL
 
-#define GHCB_HV_FT_SUPPORTED	(GHCB_HV_FT_SNP | GHCB_HV_FT_SNP_AP_CREATION)
+#define GHCB_HV_FT_SUPPORTED	(GHCB_HV_FT_SNP |		\
+				 GHCB_HV_FT_SNP_AP_CREATION |	\
+				 GHCB_HV_FT_SNP_SVSM)
 
 extern unsigned int max_sev_asid;
 
