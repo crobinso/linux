@@ -39,9 +39,9 @@ EXCLUDES="$RCS_TAR_IGNORE --exclude=*vmlinux* --exclude=*.mod \
 #  $S: this line is enabled only when building source package
 #  $M: this line is enabled only when CONFIG_MODULES is enabled
 sed -e '/^DEL/d' -e 's/^\t*//' <<EOF
-	Name: kernel
+	Name: kernel-snp-upm
 	Summary: The Linux Kernel
-	Version: $__KERNELRELEASE
+	Version: ${__KERNELRELEASE}
 	Release: $(cat .version 2>/dev/null || echo 1)
 	License: GPL
 	Group: System Environment/Kernel
@@ -54,6 +54,43 @@ $S	Source: kernel-$__KERNELRELEASE.tar.gz
 	%define _arch %{?_arch:$UTS_MACHINE}
 	%define __spec_install_post /usr/lib/rpm/brp-compress || :
 	%define debug_package %{nil}
+
+	BuildRequires: kmod, bash, coreutils, tar, git-core, which
+	BuildRequires: bzip2, xz, findutils, gzip, m4, perl-interpreter, perl-Carp, perl-devel, perl-generators, make, diffutils, gawk
+	BuildRequires: gcc, binutils, redhat-rpm-config, hmaccalc, bison, flex, gcc-c++
+	BuildRequires: net-tools, hostname, bc, elfutils-devel
+	BuildRequires: dwarves
+	BuildRequires: python3-devel
+	BuildRequires: gcc-plugin-devel
+	BuildRequires: kernel-rpm-macros
+	BuildRequires: bpftool
+	BuildRequires: rsync
+	BuildRequires: xmlto, asciidoc, python3-sphinx, python3-sphinx_rtd_theme
+	BuildRequires: sparse
+	BuildRequires: zlib-devel binutils-devel newt-devel perl(ExtUtils::Embed) bison flex xz-devel
+	BuildRequires: audit-libs-devel python3-setuptools
+	BuildRequires: java-devel
+	BuildRequires: libbpf-devel
+	BuildRequires: libbabeltrace-devel
+	BuildRequires: libtraceevent-devel
+	BuildRequires: numactl-devel
+	BuildRequires: opencsd-devel >= 1.0.0
+	BuildRequires: gettext ncurses-devel
+	BuildRequires: libcap-devel libcap-ng-devel
+	BuildRequires: libtracefs-devel
+	BuildRequires: pciutils-devel
+	BuildRequires: libnl3-devel
+	BuildRequires: openssl-devel
+	BuildRequires: python3-docutils
+	BuildRequires: zlib-devel binutils-devel
+	BuildRequires: clang llvm fuse-devel
+	BuildRequires: numactl-devel
+	BuildRequires: libcap-devel libcap-ng-devel rsync libmnl-devel
+	BuildRequires: kabi-dw
+
+	BuildRequires: openssl
+	BuildRequires: nss-tools
+	BuildRequires: pesign
 
 	%description
 	The Linux Kernel, the operating system core itself
@@ -74,17 +111,19 @@ $S$M	%package devel
 $S$M	Summary: Development package for building kernel modules to match the $__KERNELRELEASE kernel
 $S$M	Group: System Environment/Kernel
 $S$M	AutoReqProv: no
-$S$M	%description -n kernel-devel
+$S$M	%description devel
 $S$M	This package provides kernel headers and makefiles sufficient to build modules
 $S$M	against the $__KERNELRELEASE kernel package.
 $S$M
 $S	%prep
-$S	%setup -q
+$S	%setup -q -n kernel-%{version}
 $S
 $S	%build
+$S      export EXTRA_CFLAGS="-Wno-error"
 $S	$MAKE %{?_smp_mflags} KBUILD_BUILD_VERSION=%{release}
 $S
 	%install
+        export EXTRA_CFLAGS="-Wno-error"
 	mkdir -p %{buildroot}/boot
 	%ifarch ia64
 	mkdir -p %{buildroot}/boot/efi
