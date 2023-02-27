@@ -121,10 +121,18 @@ enum psc_op {
 #define GHCB_MSR_VMPL_LEVEL_MASK	GENMASK_ULL(7, 0)
 
 #define GHCB_MSR_VMPL_RESP		0x017
+#define GHCB_MSR_VMPL_RESP_VAL(v)			\
+	/* GHCBData[63:32] */				\
+	(((u64)(v) & GENMASK_ULL(63, 32)) >> 32)
 #define GHCB_MSR_VMPL_ERROR_POS		32
 #define GHCB_MSR_VMPL_ERROR_MASK	GENMASK_ULL(31, 0)
 #define GHCB_MSR_VMPL_RSVD_POS		12
 #define GHCB_MSR_VMPL_RSVD_MASK		GENMASK_ULL(19, 0)
+#define GHCB_MSR_VMPL_REQ_LEVEL(v)			\
+	/* GHCBData[39:32] */				\
+	(((u64)(v) & GENMASK_ULL(7, 0) << 32) |		\
+	/* GHCBDdata[11:0] */				\
+	GHCB_MSR_VMPL_REQ)
 
 /* GHCB Hypervisor Feature Request/Response */
 #define GHCB_MSR_HV_FT_REQ		0x080
@@ -199,6 +207,7 @@ struct snp_psc_desc {
 #define GHCB_TERM_CPUID_HV		5	/* CPUID failure during hypervisor fallback */
 #define GHCB_TERM_SECRETS_PAGE		6	/* Secrets page failure */
 #define GHCB_TERM_SVSM_VMPL0		7	/* SVSM is present but has set VMPL to 0 */
+#define GHCB_TERM_CAA_REMAP		8	/* SVSM CAA remap failure */
 
 #define GHCB_RESP_CODE(v)		((v) & GHCB_MSR_INFO_MASK)
 
