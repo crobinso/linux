@@ -1737,6 +1737,7 @@ static void zap_collapsible_spte_range(struct kvm *kvm,
 	gfn_t end = start + slot->npages;
 	struct tdp_iter iter;
 	int max_mapping_level;
+	kvm_pfn_t pfn;
 
 	rcu_read_lock();
 
@@ -1767,8 +1768,10 @@ retry:
 		if (iter.gfn < start || iter.gfn >= end)
 			continue;
 
+		pfn = spte_to_pfn(iter.old_spte);
 		max_mapping_level = kvm_mmu_max_mapping_level(kvm, slot,
-							      iter.gfn, PG_LEVEL_NUM);
+							      iter.gfn, pfn,
+							      PG_LEVEL_NUM);
 		if (max_mapping_level < iter.level)
 			continue;
 

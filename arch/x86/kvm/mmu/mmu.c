@@ -2961,7 +2961,7 @@ static void direct_pte_prefetch(struct kvm_vcpu *vcpu, u64 *sptep)
  * the above "rules" ensure KVM will not _consume_ the result of the walk if a
  * race with the primary MMU occurs.
  */
-static int host_pfn_mapping_level(struct kvm *kvm, gfn_t gfn,
+static int host_pfn_mapping_level(struct kvm *kvm, gfn_t gfn, kvm_pfn_t pfn,
 				  const struct kvm_memory_slot *slot)
 {
 	int level = PG_LEVEL_4K;
@@ -3032,7 +3032,7 @@ out:
 
 int kvm_mmu_max_mapping_level(struct kvm *kvm,
 			      const struct kvm_memory_slot *slot, gfn_t gfn,
-			      int max_level)
+			      kvm_pfn_t pfn, int max_level)
 {
 	struct kvm_lpage_info *linfo;
 	int host_level;
@@ -3047,7 +3047,8 @@ int kvm_mmu_max_mapping_level(struct kvm *kvm,
 	if (max_level == PG_LEVEL_4K)
 		return PG_LEVEL_4K;
 
-	host_level = host_pfn_mapping_level(kvm, gfn, slot);
+	host_level = host_pfn_mapping_level(kvm, gfn, pfn, slot);
+
 	return min(host_level, max_level);
 }
 
@@ -3072,7 +3073,8 @@ void kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault
 	 * level, which will be used to do precise, accurate accounting.
 	 */
 	fault->req_level = kvm_mmu_max_mapping_level(vcpu->kvm, slot,
-						     fault->gfn, fault->max_level);
+						     fault->gfn, fault->pfn,
+						     fault->max_level);
 	if (fault->req_level == PG_LEVEL_4K || fault->huge_page_disallowed)
 		return;
 
@@ -6395,11 +6397,13 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
 	u64 *sptep;
 	struct rmap_iterator iter;
 	int need_tlb_flush = 0;
+	kvm_pfn_t pfn;
 	struct kvm_mmu_page *sp;
 
 restart:
 	for_each_rmap_spte(rmap_head, &iter, sptep) {
 		sp = sptep_to_sp(sptep);
+		pfn = spte_to_pfn(*sptep);
 
 		/*
 		 * We cannot do huge page mapping for indirect shadow pages,
@@ -6410,7 +6414,7 @@ restart:
 		 */
 		if (sp->role.direct &&
 		    sp->role.level < kvm_mmu_max_mapping_level(kvm, slot, sp->gfn,
-							       PG_LEVEL_NUM)) {
+							       pfn, PG_LEVEL_NUM)) {
 			kvm_zap_one_rmap_spte(kvm, rmap_head, sptep);
 
 			if (kvm_available_flush_tlb_with_range())
