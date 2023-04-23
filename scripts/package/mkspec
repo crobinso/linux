@@ -184,4 +184,8 @@ $S$M	%defattr (-, root, root)
 $S$M	/usr/src/kernels/$KERNELRELEASE
 $S$M	/lib/modules/$KERNELRELEASE/build
 $S$M	/lib/modules/$KERNELRELEASE/source
+
+	%changelog
+	* $(date "+%a %b %d %Y") $EMAIL - $KERNELRELEASE
+	- Source: https://github.com/crobinso/linux/tree/snp-host-latest+svsmv2+vtpm
 EOF
