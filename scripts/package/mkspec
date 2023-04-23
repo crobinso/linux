@@ -184,4 +184,8 @@ $S$M	%defattr (-, root, root)
 $S$M	/usr/src/kernels/$KERNELRELEASE
 $S$M	/lib/modules/$KERNELRELEASE/build
 $S$M	/lib/modules/$KERNELRELEASE/source
+
+	%changelog
+	* $(date "+%a %b %d %Y") $EMAIL - $KERNELRELEASE
+	- svsm-preview-hv-v2 + svsm-preview-guest-v2 + svsm vtpm patch
 EOF
