@@ -2,7 +2,8 @@
 VERSION = 6
 PATCHLEVEL = 1
 SUBLEVEL = 0
-EXTRAVERSION = -rc4
+CROBINSO_VERSION=-snp-upm-$(shell date +%Y%m%d)
+EXTRAVERSION = -rc4$(CROBINSO_VERSION)
 NAME = Hurr durr I'ma ninja sloth
 
 # *DOCUMENTATION*
@@ -10,7 +11,6 @@ NAME = Hurr durr I'ma ninja sloth
 # More info can be located in ./README
 # Comments in this file are targeted only to the developer, do not
 # expect to learn how to build the kernel reading this file.
-EXTRAVERSION = -snp-latest$(shell date +%Y%m%d)
 
 $(if $(filter __%, $(MAKECMDGOALS)), \
 	$(error targets prefixed with '__' are only for internal use))
